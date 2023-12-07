@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gaana suno</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body{
+            background-color: rgb(246, 247, 248);
+        }
+        .head{
+            color: rgb(98, 43, 226);
+            font-style: italic;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 45px;
+            text-decoration:underline 1px rgb(30, 7, 36) ;
+        }
+        .head:hover{
+            color: brown;
+          
+        }
+        .song-head{
+            text-align: center;
+            font-size: x-large;
+            color: rgb(30, 7, 36);
+        }
+        .hero {
+            display: flex;
+            justify-content: center;
+            margin-top: 10%;
+            box-shadow: 5px 6px 5px rgb(114, 106, 106);
+        }
+
+        .input {
+            height: 50px;
+            width: 500px;
+            margin-right: 0px;
+            font-size: large;
+        }
+
+        .input:hover {
+            border: 2px solid rgb(130, 27, 130, 0.5);
+            border-radius: 4px;
+        }
+        .input::placeholder{
+            font-size: larger;
+        }
+        .btn{
+            font-size: x-large;
+            padding: 0px 8px 0px 8px;
+        }
+        .lyrics1{
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 class="head">Gaana Suno</h3>
+    <div class="hero">
+        <input type="text" class="input" placeholder="search a song..">
+        <button type="button" class="btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="main"></div>
+    <br>
+    
+    <div class="lyrics"></div>
+    <script>
+        let val;
+        let i;
+        let textbox = document.querySelector(".input");
+        let submit = document.querySelector(".btn");
+        let main = document.querySelector(".main");
+        let lyrics = document.querySelector(".lyrics");
+       
+   function search(){
+    val = textbox.value;
+            searchsong();
+
+            setTimeout(() => {
+                textbox.value = "";
+            }, 1000);
+   }
+        submit.addEventListener('click', () => {
+           search();
+        });
+        textbox.addEventListener('keydown', (event) => {
+            if(event.key=='Enter'){
+          search();
+            }
+        });
+        
+
+        function searchsong() {
+            // Use encodeURIComponent to handle special characters in the query parameter
+            const url = `https://spotify23.p.rapidapi.com/search/?q=${encodeURIComponent(val)}&type=multi&offset=0&limit=10&numberOfTopResults=5`;
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': '34d399c34dmshd865ab3252fa730p12acb7jsn9744e311f6d7',
+                    'X-RapidAPI-Host': 'spotify23.p.rapidapi.com'
+                }
+            };
+           
+            fetch(url, options)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                   display(data);
+                    // Process the API response data here
+                })
+                .catch(error => {
+                    console.error("API connection failed - error:", error.message);
+                    // Handle errors here
+                });
+                
+        }
+       
+            
+        function display(data) {
+           
+        // Assuming data.uri is the Spotify track URI
+        main.innerHTML = `<h4 class = "song-head">Name: ${data.tracks.items[0].data.name}</h4>
+    
+        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/${data.tracks.items[0].data.id}?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" controls></iframe>
+        <br>
+        <h3 style = "text-align:center;"><i>Lyrics</i></h3>
+        <hr><br>
+        
+        `;
+        const url1 = `https://spotify23.p.rapidapi.com/track_lyrics/?id=${data.tracks.items[0].data.id}`;
+            // Make the API call
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': '34d399c34dmshd865ab3252fa730p12acb7jsn9744e311f6d7',
+                    'X-RapidAPI-Host': 'spotify23.p.rapidapi.com'
+                }
+            };
+         
+            fetch(url1, options)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data1 => {
+                    console.log(data1);
+                    displaylyrics(data1);
+                 
+                    // Process the API response data here
+                })
+                .catch(error => {
+                    console.error("API connection failed - error:", error.message);
+                    // Handle errors here
+                });
+        
+       
+    }
+    function displaylyrics(data1) {
+    // Joining the words array with space
+
+   
+       let length1 = data1.lyrics.lines;
+       let liri = "" ;
+       i = 0;
+       while(i<length1.length){
+        liri +=  `<p class="lyrics1"> ${data1.lyrics.lines[i].words}<p/>`;
+       
+        i++;
+       }
+       lyrics.innerHTML = `<p >${liri}</p>`;
+       
+       
+}
+
+    </script>
+</body>
+
+</html>
